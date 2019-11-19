@@ -78,7 +78,7 @@ export default class LogScreen extends React.Component<LogScreenProps, LogScreen
                         {this.state.logData.matchDetails.isRed == false && <li>Blue Alliance</li>}
                         {this.state.logData.matchDetails.startedAtBuildingZone == true && <li>Started at Building Zone</li>}
                         {this.state.logData.matchDetails.startedAtBuildingZone == false && <li>Started at Loading Zone</li>}
-                        {this.state.logData.matchDetails.startTime && <li>Match started at {new Date(this.state.logData.matchDetails.startTime).toLocaleString()}</li>}
+                        {this.state.logData.matchDetails.startTime != 0 && <li>Match started at {new Date(this.state.logData.matchDetails.startTime).toLocaleString()}</li>}
                     </ul>
                 </div>
             </div>

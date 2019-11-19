@@ -50,8 +50,8 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: "🗺️ Intelligent Design"
-    }), // Generates default index.html
+      title: "🗺️ Intelligent Design",
+    }),
   ]
 };
 

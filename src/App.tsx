@@ -21,7 +21,6 @@ export default class App extends React.Component<{}, AppState> {
 	}
 
 	selectRun(filename: string) {
-		alert(filename);
 		this.setState({
 			currentRun: filename
 		})

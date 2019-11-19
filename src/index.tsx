@@ -4,4 +4,8 @@ import * as ReactDOM from "react-dom";
 import App from './App';
 // import "./styles.styl";
 
-ReactDOM.render(<App />, document.body);
+let appDiv = document.createElement("div");
+appDiv.id = "app";
+document.body.appendChild(appDiv);
+
+ReactDOM.render(<App />, document.getElementById("app"));

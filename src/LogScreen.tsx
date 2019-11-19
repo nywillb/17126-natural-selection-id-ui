@@ -38,6 +38,8 @@ interface LogItem {
 const colors = ["#ff6384", "#36a2eb", "#4bc0c0", "#f67019"]
 
 export default class LogScreen extends React.Component<LogScreenProps, LogScreenState> {
+    chartRef: React.Ref<Element>;
+
     constructor(props: LogScreenProps) {
         super(props);
 
@@ -45,6 +47,8 @@ export default class LogScreen extends React.Component<LogScreenProps, LogScreen
             loading: true,
             logData: null,
         }
+
+        this.chartRef = React.createRef()
 
         this.load()
     }
@@ -54,6 +58,12 @@ export default class LogScreen extends React.Component<LogScreenProps, LogScreen
             loading: false,
             logData: await api.get("log/" + this.props.run) as LogData,
         })
+    }
+
+    downloadChartImage() {
+        let ctx = document.querySelector("canvas") as HTMLCanvasElement;
+        let url = ctx.toDataURL("image/png");
+        window.open(url, "_blank")
     }
 
     render() {
@@ -101,6 +111,10 @@ export default class LogScreen extends React.Component<LogScreenProps, LogScreen
                         {this.state.logData.matchDetails.startedAtBuildingZone == false && <li>Started at Loading Zone</li>}
                         {this.state.logData.matchDetails.startTime != 0 && <li>Match started at {new Date(this.state.logData.matchDetails.startTime).toLocaleString()}</li>}
                     </ul>
+                    <div className="btn-group" role="group" aria-label="Basic example">
+                        <a download href={`/api/log/${this.props.run}`} className="btn btn-outline-light">Download match JSON</a>
+                        <button onClick={this.downloadChartImage.bind(this)} className="btn btn-outline-light">Download chart (for notebook)</button>
+                    </div>
                 </div>
             </div>
             <div className="container">

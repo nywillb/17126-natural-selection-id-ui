@@ -1,11 +1,11 @@
 import * as React from 'react';
 import LoadingIndicator from './LoadingIndicator';
-
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, TooltipProps, CustomizedProps } from "recharts";
+import { Scatter } from 'react-chartjs-2';
 
 import "./LogScreen.styl"
 
 import * as api from "./api"
+import { ChartDataSets } from 'chart.js';
 
 interface LogScreenProps {
     run: string
@@ -34,6 +34,8 @@ interface LogItem {
     context: string,
     datapoint: number,
 }
+
+const colors = ["#ff6384", "#36a2eb", "#4bc0c0", "#f67019"]
 
 export default class LogScreen extends React.Component<LogScreenProps, LogScreenState> {
     constructor(props: LogScreenProps) {
@@ -69,6 +71,25 @@ export default class LogScreen extends React.Component<LogScreenProps, LogScreen
             badge = <span className="badge badge-success">TeleOp</span>
         }
 
+        let datasets: Chart.ChartDataSets[] = [];
+        let contexts = this.state.logData.logs.map((log) => log.context).filter((item, pos, self) => self.indexOf(item) == pos);
+
+        for (const i in contexts) {
+            if (contexts.hasOwnProperty(i)) {
+                const context = contexts[i];
+                datasets.push({
+                    label: context,
+                    backgroundColor: colors[parseInt(i) % colors.length],
+                    borderColor: colors[parseInt(i) % colors.length],
+                    showLine: true,
+                    fill: false,
+                    data: this.state.logData.logs.filter((log) => log.context == context).map((log) => ({ x: log.time, y: log.datapoint }))
+                })
+            }
+        }
+
+        console.log({ datasets: datasets });
+
         return <div>
             <div className="jumbotron jumbotron-fluid">
                 <div className="container">
@@ -83,14 +104,23 @@ export default class LogScreen extends React.Component<LogScreenProps, LogScreen
                 </div>
             </div>
             <div className="container">
-                <LineChart data={this.state.logData.logs} width={1000} height={300}>
-                    <Line type="monotone" dataKey="datapoint" stroke="#8884d8" />
-                    <CartesianGrid stroke="#ccc" />
-                    <XAxis dataKey="time" tick={<CustomizedAxisTick />} />
-                    <YAxis />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend />
-                </LineChart>
+                <div className="bg-white chart-container">
+                    <Scatter data={{ datasets: datasets }} options={{
+                        scales: {
+                            xAxes: [{
+                                ticks: {
+                                    callback: (value) => new Date(value).toLocaleTimeString()
+                                }
+                            }]
+                        },
+                        tooltips: {
+                            callbacks: {
+                                title: (tooltipItem) => new Date(tooltipItem[0].xLabel as number).toLocaleTimeString(),
+                                label: (tooltipItem, data) => (data.datasets as ChartDataSets[])[tooltipItem.datasetIndex as number].label + ": " + tooltipItem.value
+                            }
+                        }
+                    }} />
+                </div>
                 <table className="table">
                     <thead>
                         <tr>
@@ -112,34 +142,6 @@ export default class LogScreen extends React.Component<LogScreenProps, LogScreen
                     </tbody>
                 </table>
             </div>
-        </div>
-    }
-}
-
-const CustomTooltip = (props: TooltipProps) => {
-    if (props.active && props.payload) {
-        return (
-            <div className="custom-tooltip">
-                <strong>{(props.payload[0].payload as LogItem).context}</strong>
-                <pre><code>{(props.payload[0].payload as LogItem).datapoint}</code></pre>
-                <small>{new Date((props.payload[0].payload as LogItem).time).toLocaleTimeString()}</small>
-            </div>
-        );
-    }
-
-    return null;
-};
-
-class CustomizedAxisTick extends React.Component<any> {
-    render() {
-        const {
-            x, y, stroke, payload,
-        } = this.props;
-
-        return (
-            <g transform={`translate(${x},${y})`}>
-                <text x={0} y={0} dy={16} textAnchor="end" fill="#666" transform="rotate(-35)">{new Date(payload.value).toLocaleTimeString()}</text>
-            </g>
-        );
+        </div >
     }
 }

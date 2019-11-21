@@ -49,7 +49,7 @@ export default class SelectScreen extends React.Component<SelectScreenProps, Sel
                 <h3>Select a run</h3>
                 {this.state.loading ?
                     <LoadingIndicator wide /> :
-                    this.state.logs.map((item, i) => {
+                    this.state.logs.reverse().map((item, i) => {
                         return <RunCard name={item} key={i} onClick={this.selectRun.bind(this)} />
                     })
                 }
